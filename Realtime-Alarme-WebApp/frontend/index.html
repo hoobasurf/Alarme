@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Alarme en temps réel</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    color: #222;
+    text-align: center;
+    margin: 0; padding: 2em;
+  }
+  button {
+    background: #ff6f91;
+    border: none;
+    padding: 1em 2em;
+    font-size: 1.2em;
+    color: white;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 6px 12px rgba(255,111,145,0.5);
+    transition: background 0.3s;
+  }
+  button:hover {
+    background: #ff4b69;
+  }
+  #alarme {
+    margin-top: 2em;
+    font-size: 1.5em;
+    color: #b00020;
+    font-weight: bold;
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <h1>Alarme en temps réel 📱✨</h1>
+  <button id="btn-alarm">Envoyer une alarme</button>
+  <div id="alarme">🚨 ALARME REÇUE ! 🚨</div>
+
+<script>
+  const btn = document.getElementById('btn-alarm');
+  const alarmeDiv = document.getElementById('alarme');
+
+  // Remplace par ton serveur WebSocket (déployé)
+  const WS_URL = 'ws://localhost:8080'; 
+
+  const ws = new WebSocket(WS_URL);
+
+  ws.onopen = () => console.log('Connecté au serveur WebSocket');
+
+  ws.onmessage = event => {
+    console.log('Alarme reçue:', event.data);
+    alarmeDiv.style.display = 'block';
+    // Son d'alerte
+    const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+    audio.play();
+
+    // Cache l'alarme après 5s
+    setTimeout(() => {
+      alarmeDiv.style.display = 'none';
+    }, 5000);
+  };
+
+  ws.onclose = () => console.log('Connexion WebSocket fermée');
+
+  btn.onclick = () => {
+    if(ws.readyState === WebSocket.OPEN) {
+      ws.send('ALERTE_DEPUIS_UN_TELEPHONE');
+      alert('Alarme envoyée à tous les autres téléphones !');
+    } else {
+      alert('Pas connecté au serveur');
+    }
+  };
+</script>
+</body>
+</html>
